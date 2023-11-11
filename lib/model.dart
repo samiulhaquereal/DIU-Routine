@@ -1,19 +1,19 @@
-class Routine{
-
+class CourseCard {
+  final String startingTime;
+  final String endingTime;
   final String courseTitle;
   final String courseCode;
-  final String roomId;
-  final String teacherIn;
-  final String Stime;
-  final String Etime;
+  final String room;
+  final String teacher;
+  final String? day;
 
-  const Routine({
+  CourseCard({
+    required this.startingTime,
+    required this.endingTime,
     required this.courseTitle,
     required this.courseCode,
-    required this.roomId,
-    required this.teacherIn,
-    required this.Stime,
-    required this.Etime,
+    required this.room,
+    required this.teacher,
+    required this.day,
   });
-
 }

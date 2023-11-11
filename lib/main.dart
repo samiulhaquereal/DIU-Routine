@@ -33,8 +33,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var a = TextEditingController();
-  List<Routine> routineList = [];
+  List<CourseCard> courseCardList = [];
   List<String> deptList = [];
+  List<String> routineVersion = [];
   String selectedDepartment = '';
   final url = Uri.parse('http://routine.zohirrayhan.me/');
 
@@ -42,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final url = Uri.parse('http://routine.zohirrayhan.me/');
     final response = await http.get(url);
     dom.Document html = dom.Document.html(response.body);
-    print(html);
 
     deptList = html
         .querySelector('#department')!
@@ -51,11 +51,44 @@ class _MyHomePageState extends State<MyHomePage> {
         .toList();
 
     selectedDepartment = deptList.first;
-    print('Count: ${deptList}');
+    setState(() {
+    });
+  }
+
+  List<CourseCard> parseCourseCards(dom.Document html) {
+    List<CourseCard> parsedCards = [];
+
+    html.querySelectorAll('.custom-col.card-container').forEach((element) {
+      final startingTime = element.querySelector('.starting-time')?.text.trim() ?? '';
+      final endingTime = element.querySelector('.ending-time')?.text.trim() ?? '';
+      final courseTitle = element.querySelector('.Course-Title-text strong')?.text.trim() ?? '';
+      final courseCode = element.querySelector('.Course-code-text .code')?.text.trim() ?? '';
+      final room = element.querySelector('.Room-text .room')?.text.trim() ?? '';
+      final teacher = element.querySelector('.clickable-teacher .teacher')?.text.trim() ?? '';
+      final dayButtons = html.querySelectorAll('.day-btns .day-btn.active-button');
+      final day = dayButtons.isNotEmpty ? dayButtons.first.attributes['data-day'] : '';
+      final dayName = dayButtons.isNotEmpty ? dayButtons.first.querySelector('.day-name')?.text.trim() : '';
+
+
+
+
+      final courseCard = CourseCard(
+        startingTime: startingTime,
+        endingTime: endingTime,
+        courseTitle: courseTitle,
+        courseCode: courseCode,
+        room: room,
+        teacher: teacher,
+        day: dayName
+      );
+
+      parsedCards.add(courseCard);
+    });
+
+    return parsedCards;
   }
 
   Future getwebsiteData() async {
-    print(a.text);
     // Simulate form submission
     final response2 = await http.post(
       url,
@@ -66,42 +99,31 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
 
+    final response3 = await http.get(url);
+    dom.Document html = dom.Document.html(response3.body);
+    routineVersion = html
+        .querySelectorAll('#version')
+        .map((element) => element.text.trim())
+        .toList();
+
+    print(routineVersion);
+
+
     if (response2.statusCode == 200) {
-      // Parse the HTML response
-      //dom.Document html = dom.Document.html(response.body);
+      final html = dom.Document.html(response2.body);
+      final courseCards = parseCourseCards(html);
+
+      setState(() {
+        courseCardList.clear();
+        courseCardList.addAll(courseCards);
+        print(courseCardList.length);
+      });
+
       print('Done');
-      // Now you can extract data from the response HTML
-      // Add your parsing logic here
     } else {
       print('Failed to submit form. Status code: ${response2.statusCode}');
     }
 
-    //print('Count: ${urls.length}');
-    //print('Count: ${pic.length}');
-
-    /*for (final title1 in titles) {
-      debugPrint(title1);
-    }
-    for (final title in urls) {
-      debugPrint(title);
-    }*/
-    /*for (final title in pic) {
-      debugPrint(title);
-    }*/
-/*
-    setState(() {
-      routineList = List.generate(titles.length, (index) =>
-          Routine(
-              courseTitle: '',
-              courseCode: '',
-              roomId: '',
-              teacherIn: '',
-              Stime: '',
-              Etime: ''
-
-          )
-      );
-    });*/
   }
 
   @override
@@ -148,6 +170,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   await getwebsiteData();
                 },
                 child: Text('Find')),
+            Expanded(
+              child: ListView.builder(
+                itemCount: courseCardList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(courseCardList[index].courseTitle,style: TextStyle(color: Colors.black),),
+                    subtitle: Text('${courseCardList[index].courseCode}\nRoom : ${courseCardList[index].room}\nTeacher : ${courseCardList[index].teacher}\nStart : ${courseCardList[index].startingTime}\nEnd : ${courseCardList[index].endingTime}\nDay : ${courseCardList[index].day}'),
+                    // Add more details if needed
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
