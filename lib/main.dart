@@ -54,6 +54,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
     });
   }
+  List<String> extractDayNames(dom.Document html) {
+    return html
+        .querySelectorAll('.day-btns .day-btn .day-name')
+        .map((element) => element.text.trim())
+        .toList();
+  }
 
   List<CourseCard> parseCourseCards(dom.Document html) {
     List<CourseCard> parsedCards = [];
@@ -112,6 +118,11 @@ class _MyHomePageState extends State<MyHomePage> {
     if (response2.statusCode == 200) {
       final html = dom.Document.html(response2.body);
       final courseCards = parseCourseCards(html);
+
+      final dayNames = extractDayNames(html);
+
+      // Display the list of day names
+      print(dayNames);
 
       setState(() {
         courseCardList.clear();
