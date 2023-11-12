@@ -64,19 +64,24 @@ class _MyHomePageState extends State<MyHomePage> {
   List<CourseCard> parseCourseCards(dom.Document html) {
     List<CourseCard> parsedCards = [];
 
-    html.querySelectorAll('.custom-col.card-container').forEach((element) {
+    html.querySelectorAll('.custom-col.card-container').forEach((dom.Element element) {
       final startingTime = element.querySelector('.starting-time')?.text.trim() ?? '';
       final endingTime = element.querySelector('.ending-time')?.text.trim() ?? '';
       final courseTitle = element.querySelector('.Course-Title-text strong')?.text.trim() ?? '';
       final courseCode = element.querySelector('.Course-code-text .code')?.text.trim() ?? '';
       final room = element.querySelector('.Room-text .room')?.text.trim() ?? '';
       final teacher = element.querySelector('.clickable-teacher .teacher')?.text.trim() ?? '';
-      final dayButtons = html.querySelectorAll('.day-btns .day-btn.active-button');
-      final day = dayButtons.isNotEmpty ? dayButtons.first.attributes['data-day'] : '';
-      final dayName = dayButtons.isNotEmpty ? dayButtons.first.querySelector('.day-name')?.text.trim() : '';
 
+      dom.Element? parent = element.parent;
+      String? dayName;
 
-
+      while (parent != null) {
+        if (parent.classes.contains('day-card')) {
+          dayName = parent.id;
+          break;
+        }
+        parent = parent.parent;
+      }
 
       final courseCard = CourseCard(
         startingTime: startingTime,
@@ -85,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         courseCode: courseCode,
         room: room,
         teacher: teacher,
-        day: dayName
+        day: dayName ?? '',
       );
 
       parsedCards.add(courseCard);
@@ -93,6 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return parsedCards;
   }
+
+
 
   Future getwebsiteData() async {
     // Simulate form submission
