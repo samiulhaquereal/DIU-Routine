@@ -167,35 +167,41 @@ class _MyHomePageState extends State<MyHomePage> {
     List<DateTime> result = [];
 
     for (String day in days) {
+      int dayIndex = DateTime.daysPerWeek - DateTime.parse('2023-11-14').weekday; // Assuming today is Tuesday
+
       switch (day) {
         case 'Mon':
-          result.add(now.add(Duration(days: DateTime.monday - now.weekday + 7)));
+          dayIndex = DateTime.monday;
           break;
         case 'Tue':
-          result.add(now.add(Duration(days: DateTime.tuesday - now.weekday + 7)));
+          dayIndex = DateTime.tuesday;
           break;
         case 'Wed':
-          result.add(now.add(Duration(days: DateTime.wednesday - now.weekday + 7)));
+          dayIndex = DateTime.wednesday;
           break;
         case 'Thu':
-          result.add(now.add(Duration(days: DateTime.thursday - now.weekday + 7)));
+          dayIndex = DateTime.thursday;
           break;
         case 'Fri':
-          result.add(now.add(Duration(days: DateTime.friday - now.weekday + 7)));
+          dayIndex = DateTime.friday;
           break;
         case 'Sat':
-          result.add(now.add(Duration(days: DateTime.saturday - now.weekday + 7)));
+          dayIndex = DateTime.saturday;
           break;
         case 'Sun':
-          result.add(now.add(Duration(days: DateTime.sunday - now.weekday + 7)));
+          dayIndex = DateTime.sunday;
           break;
       }
+
+      int daysToAdd = (dayIndex - now.weekday + 7) % 7;
+      result.add(now.add(Duration(days: daysToAdd)));
     }
 
-    //result.sort((a, b) => a.compareTo(b));
+     result.sort((a, b) => a.compareTo(b));
 
     return result;
   }
+
 
   @override
   void initState() {
